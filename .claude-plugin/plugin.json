@@ -1,0 +1,5 @@
+{
+  "name": "my-plugin",
+  "version": "0.1.0",
+  "description": "BIMCanvas plugin SDK 触发器 (由 bimcanvas-plugin-validate 派生, 三字段保持与 bimcanvas-plugin.json 一致)"
+}

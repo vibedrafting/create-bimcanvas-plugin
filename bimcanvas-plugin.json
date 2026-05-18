@@ -1,0 +1,51 @@
+{
+  "name": "my-plugin",
+  "version": "0.1.0",
+  "type": "bimcanvas-plugin",
+  "schemaVersion": 1,
+  "compatibility": { "bimcanvas": "^1.0.0" },
+
+  "displayName": "My Plugin",
+  "description": "一句话描述你的 plugin 在做什么 (详细介绍写到 README.md)",
+  "homepage": "https://github.com/<your-org>/<your-plugin-repo>",
+
+  "systemPrompt": "BIMCANVAS.md",
+  "agents": "agents/",
+  "skills": "skills/",
+  "mcpTools": "mcp_tools/example.py",
+  "mcpNamespace": "my-plugin",
+
+  "projectMount": {
+    "manifest": "projectMount/manifest.json"
+  },
+
+  "permissions": {
+    "allow": [
+      "Read",
+      "Write",
+      "mcp__canvas__list_project_scenes",
+      "mcp__canvas__load_scene_artifact"
+    ],
+    "deny": []
+  },
+
+  "requires": {
+    "platformTools": []
+  },
+
+  "referenceStability": "experimental",
+  "maturity": "experimental",
+
+  "web": {
+    "displayName": "My Plugin",
+    "icon": "🧩",
+    "category": "uncategorized"
+  },
+
+  "defaultSceneIdPattern": "my-plugin-{n}",
+
+  "overrides": {
+    "agents": [],
+    "skills": []
+  }
+}
