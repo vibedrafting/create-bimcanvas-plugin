@@ -6,7 +6,7 @@
 > 本文应该说清楚:
 > 1. 你的 plugin 解决什么领域问题(一句话定位)
 > 2. 你提供哪些 SubAgent(如有)
-> 3. 你提供哪些 MCP 工具(走 `mcp__<mcpNamespace>__<tool>` 调用)
+> 3. 你提供哪些 MCP 工具(走 `mcp__<plugin-name>__<tool>` 调用;namespace 自动 = `mcp_tools/<plugin-name>.py` 文件名 stem)
 > 4. 你期望的工作流(用户说 X → Agent 做 Y)
 
 ---

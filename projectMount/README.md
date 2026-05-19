@@ -44,5 +44,6 @@
 
 ## 不需要 projectMount
 
-如果你的 plugin 不依赖项目级初始资源,可以删除整个 `projectMount/` 目录并从
-`bimcanvas-plugin.json` 移除 `projectMount.manifest` 字段。
+如果你的 plugin 不依赖项目级初始资源,直接删除整个 `projectMount/` 目录即可。
+manifest 不需要任何额外声明 —— v3.3.2 schema 改约定俗成,`projectMount/manifest.json`
+存在即作为脚手架,不存在就跳过。

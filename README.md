@@ -1,7 +1,9 @@
 # bimcanvas-plugin-template
 
 > **GitHub Template** for building [BIMCanvas](https://github.com/vibedrafting/bimcanvas) domain plugins —
-> 拿来即用的脚手架,覆盖 systemPrompt / SubAgents / Skills / MCP 工具 / projectMount 五层投影。
+> 拿来即用的脚手架,覆盖 system prompt / SubAgents / Skills / MCP 工具 / projectMount 五层资源。
+>
+> 适配 BIMCanvas **v3.3.2 plugin manifest schema**(9 字段精简 + 约定俗成路径 + fallback / 完全接管语义)。
 
 在右上角点 **[Use this template]** 即可派生一份新仓库,按下文三步走即可发布到 GitHub,
 让任何 BIMCanvas 用户在 Web 设置页粘贴 URL 安装你的 plugin。
@@ -18,29 +20,33 @@
 
 ## 一个 BIMCanvas plugin 包含什么
 
-每个 plugin = 一份平台契约 `bimcanvas-plugin.json` + 最多五层资源:
+每个 plugin = 一份 **9 字段** 平台契约 `bimcanvas-plugin.json` + 最多五层**约定俗成**的资源:
 
-| 层 | 文件 / 目录 | 用途 |
+| 层 | 文件 / 目录(约定俗成,manifest 不再声明路径) | 用途 |
 |---|---|---|
 | 系统提示词 | `BIMCANVAS.md` | 你的 domain 上下文,运行时拼到平台 `core-base` 提示词之后,边界标识由平台插入 |
 | SubAgents | `agents/*.md` | 主控按需派发的分身(如分区并行布置);BIMCanvas 显式 glob 加载,**不依赖 SDK 扫描** |
 | Skills | `skills/<skill-name>/SKILL.md` | Claude SDK 触发的工作流,按 frontmatter `description` 命中 |
-| MCP 工具 | `mcp_tools/<entry>.py` | 暴露 `register(builder)`,工具暴露为 `mcp__<mcpNamespace>__<tool>` |
-| 项目脚手架 | `projectMount/*` | 用户绑定 scene 时 **bind-time** 一次性物化到 `.bcp` 内的初始资源 |
+| MCP 工具 | `mcp_tools/<plugin-name>.py` | 暴露 `register(builder)`,工具调用名 = `mcp__<plugin-name>__<tool>`。**namespace 自动 = 文件名 stem**,必须等于 manifest 的 `name` 字段 |
+| 项目脚手架 | `projectMount/manifest.json` + 资源 | 用户绑定 scene 时 **bind-time** 一次性物化到 `.bcp` 内的初始资源 |
 
-平台启动 Agent 子进程时把五层装配成 `ResolvedPluginBundle`,同时注入 core-base 的不变量与边界标识(防止 domain plugin 在 prompt 层覆盖平台约束)。
+平台启动 Agent 子进程时把五层装配成 `ConfigBundle`,同时注入 core-base 的不变量与边界标识(防止 domain plugin 在 prompt 层覆盖平台约束)。
+
+**约定俗成纪律**:manifest 不再声明 `systemPrompt` / `agents`(路径) / `skills`(路径) / `mcpTools` / `mcpNamespace` / `projectMount.manifest` 等"在哪儿"字段。代码写死目录约定 —— 你按约定放文件即可,文件存在就生效,不存在就跳过。
 
 ## 模板目录结构
 
 ```
 .
-├── bimcanvas-plugin.json          # 平台契约 manifest (plugin 作者手写)
-├── .claude-plugin/plugin.json     # Claude SDK 触发器 (三字段与上文保持一致,
+├── bimcanvas-plugin.json          # 9 字段平台契约 (plugin 作者手写)
+├── .claude-plugin/plugin.json     # Claude SDK 触发器 (三字段与上文保持一致;
 │                                  #   未来由 bimcanvas-plugin-validate CLI 派生)
 ├── BIMCANVAS.md                   # domain 系统提示词, 含「Plugin 边界(必读)」段
 ├── agents/                        # SubAgent .md 文件 (空骨架, README 含范式说明)
 ├── skills/example-skill/SKILL.md  # 示范 Skill — echo 触发 → 调用 example MCP 工具
-├── mcp_tools/example.py           # 示范 MCP 工具 + register(builder) 两条硬约束注释
+├── mcp_tools/my-plugin.py         # 示范 MCP 工具 + register(builder) 两条硬约束注释
+│                                  #   ⚠️ 文件名 stem = plugin name = MCP namespace,
+│                                  #   重命名 plugin 时必须同步改文件名
 ├── projectMount/                  # 项目级脚手架 (bind-time 物化, 空 manifest)
 ├── .dev-home/plugins/my-plugin/   # 本地开发态沙盒入口 (含详细 README)
 └── .gitignore                     # 预禁 CLAUDE.md / settings.local.json / .claude/ 等污染文件
@@ -54,16 +60,31 @@
 
 GitHub 派生新仓库 → `git clone` 到本地 → 把下表占位换成你的真实信息:
 
-| 文件 | 必改字段 |
+| 文件 | 必改字段 / 必做动作 |
 |---|---|
-| `bimcanvas-plugin.json` | `name` / `version` / `displayName` / `description` / `mcpNamespace` 全改;`compatibility.bimcanvas` 按目标主版本调 semver range(默认 `^1.0.0`) |
+| `bimcanvas-plugin.json` | `name` / `version` / `displayName` / `description` 全改;**`tools.allow` 必须列完整工具集**(详见下文"v3.3.2 完整工具集要求");`compatibility.bimcanvas` 按目标主版本调 semver range(默认 `^1.0.0`)。**不要在 manifest 里写已删字段**:`type` / `schemaVersion` / `systemPrompt` / `mcpTools` / `mcpNamespace` / `permissions` / `requires` / `referenceStability` / `maturity` / `homepage` / `web.*` 等 13 个字段在 v3.3.2 已全删,`additionalProperties: false` 会拒绝 |
 | `.claude-plugin/plugin.json` | `name` / `description` / `version` 与上文保持一致(Phase 1 手动同步) |
 | `BIMCANVAS.md` | 删掉 `## TODO` 标记,写你的 domain 提示词;**保留顶部「Plugin 边界(必读)」段** |
-| `mcp_tools/example.py` | 改写 `register(builder)` 注册你的工具;**严格遵守注释里的两条硬约束**(见下方"安全模型") |
-| `skills/example-skill/SKILL.md` | 重命名目录,改写 frontmatter 的 `description`(触发命中靠它) 与 `allowed-tools` |
+| `mcp_tools/my-plugin.py` | **必须重命名为 `mcp_tools/<your-plugin-name>.py`**(文件名 stem = manifest.name = MCP namespace,三者必须严格一致)。改写 `register(builder)` 注册你的工具;**严格遵守注释里的两条硬约束**(见下方"安全模型") |
+| `skills/example-skill/SKILL.md` | 重命名目录,改写 frontmatter 的 `description`(触发命中靠它) 与 `allowed-tools`(注意工具名 `mcp__<your-plugin-name>__<tool>` 中的 namespace 要跟 mcp_tools 文件名 stem 一致) |
 | `agents/*.md` | 按需新增 SubAgent(可选,详见 `agents/README.md`) |
 | `projectMount/manifest.json` | 按需声明项目级脚手架(可选,详见 `projectMount/README.md`) |
 | `README.md` | **重写为你的 plugin 介绍**,删除本模板说明 |
+
+#### v3.3.2 完整工具集要求(必读)
+
+BIMCanvas v3.3.2 采用 **fallback / 完全接管** 语义:**有 active 专业插件时,主控权限 100% 来自该 plugin manifest 的 `tools.allow`,不与 core-base 合并**。也就是说:
+
+- 你的 plugin 在用户激活后,主控只能调用 `tools.allow` 列出的工具
+- core-base 提供的 `mcp__canvas__*` 工具**不会自动加入**——你必须自己在 `tools.allow` 里列出每一个你用到的 canvas 工具
+- 漏列任何工具 → 运行时 tool-not-found
+
+模板默认 `tools.allow` 已含 **20 项**(9 内建 + 10 canvas + 1 示例 `mcp__my-plugin__example`),作为常用基线。你的实际清单按需增删:
+- 新增自己的 MCP 工具 → 在 `tools.allow` 里加 `mcp__<your-plugin-name>__<tool>`
+- 不用某个 canvas 工具 → 从 `tools.allow` 里删掉
+- 改 plugin 名 → 把 `mcp__my-plugin__example` 改成 `mcp__<your-new-name>__example`
+
+参考 reference plugin [`bimcanvas-plugin-interior-layout`](https://github.com/vibedrafting/bimcanvas-plugin-interior-layout) 的完整 23 项 `tools.allow`,作为模仿样本。
 
 ### Step 2 — 本地沙盒测试(`.dev-home/`)
 

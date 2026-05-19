@@ -1,51 +1,39 @@
 {
+  "$schema": "https://raw.githubusercontent.com/vibedrafting/bimcanvas/main/docs/plugin-manifest-schema.json",
+
   "name": "my-plugin",
   "version": "0.1.0",
-  "type": "bimcanvas-plugin",
-  "schemaVersion": 1,
   "compatibility": { "bimcanvas": "^1.0.0" },
 
-  "displayName": "My Plugin",
+  "displayName": "🧩 My Plugin",
   "description": "一句话描述你的 plugin 在做什么 (详细介绍写到 README.md)",
-  "homepage": "https://github.com/<your-org>/<your-plugin-repo>",
 
-  "systemPrompt": "BIMCANVAS.md",
-  "agents": "agents/",
-  "skills": "skills/",
-  "mcpTools": "mcp_tools/example.py",
-  "mcpNamespace": "my-plugin",
-
-  "projectMount": {
-    "manifest": "projectMount/manifest.json"
-  },
-
-  "permissions": {
+  "tools": {
     "allow": [
       "Read",
       "Write",
+      "Edit",
+      "Bash",
+      "Glob",
+      "Grep",
+      "Task",
+      "Skill",
+      "AskUserQuestion",
+      "mcp__canvas__request_background_screenshot",
+      "mcp__canvas__validate_layout",
+      "mcp__canvas__get_zone_boundaries",
+      "mcp__canvas__register_variant",
+      "mcp__canvas__list_variants",
+      "mcp__canvas__analyze_image",
+      "mcp__canvas__create_job",
+      "mcp__canvas__complete_job",
       "mcp__canvas__list_project_scenes",
-      "mcp__canvas__load_scene_artifact"
+      "mcp__canvas__load_scene_artifact",
+      "mcp__my-plugin__example"
     ],
     "deny": []
   },
+  "agents": { "allow": [], "deny": [] },
 
-  "requires": {
-    "platformTools": []
-  },
-
-  "referenceStability": "experimental",
-  "maturity": "experimental",
-
-  "web": {
-    "displayName": "My Plugin",
-    "icon": "🧩",
-    "category": "uncategorized"
-  },
-
-  "defaultSceneIdPattern": "my-plugin-{n}",
-
-  "overrides": {
-    "agents": [],
-    "skills": []
-  }
+  "defaultSceneIdPattern": "my-plugin-{n}"
 }

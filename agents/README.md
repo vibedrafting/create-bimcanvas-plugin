@@ -35,8 +35,9 @@ model: inherit  # 可选, 缺省继承主控
 ## 加载方式
 
 BIMCanvas `loader.py` 显式 `glob agents/*.md` 解析,**SDK plugin 机制不扫描本目录**
-(主真理源 §3.6)。同名 agent 与 core-base 冲突需在 `bimcanvas-plugin.json` 的
-`overrides.agents` 数组中显式声明,否则 `loader` 拒绝启动。
+(主真理源 §3.6)。同名 agent 与 core-base 冲突时,**plugin 这份默认覆盖 base**
+(v3.7 silent override + logger.info 记录),无需在 manifest 中显式声明
+(v3.3.2 已删除 `overrides` 字段)。
 
 ## 何时该写 SubAgent
 

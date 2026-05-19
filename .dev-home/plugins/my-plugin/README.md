@@ -28,6 +28,7 @@ New-Item -ItemType SymbolicLink -Path ".\.dev-home\plugins\my-plugin" -Target $P
 
 ```bash
 cp -r ./bimcanvas-plugin.json ./.claude-plugin ./BIMCANVAS.md ./agents ./skills ./mcp_tools ./projectMount .dev-home/plugins/my-plugin/
+# 注:mcp_tools/ 目录下文件名 stem 必须 = plugin name (这里是 my-plugin),否则 namespace 推断出错
 ```
 
 但复制方式每次改代码都要重新拷贝,不建议日常开发使用。
@@ -87,8 +88,9 @@ echo hello world
 
 如果失败,检查:
 
-- `bimcanvas-plugin.json` 的 `mcpNamespace` 是否真的是 `my-plugin`
-- `mcp_tools/example.py` 是否真的暴露了 `register(builder)` 函数
+- `mcp_tools/<filename>.py` 文件名 stem 是否就是你的 plugin name(v3.3.2 D8:namespace 从文件名推断,模板默认 `mcp_tools/my-plugin.py` → namespace=`my-plugin`)
+- `mcp_tools/my-plugin.py` 是否真的暴露了 `register(builder)` 函数
+- `bimcanvas-plugin.json` 的 `tools.allow` 是否含 `mcp__my-plugin__example`(v3.3.2 fallback 模型:active 时完全接管,工具必须显式列在 allow 里)
 - `.dev-home/plugins/my-plugin/` 软链是否真的指向 plugin 项目根
 
 更多调试技巧见 `BIMCanvas/docs/BYO-Plugin.md` §8 常见错误对照表。
